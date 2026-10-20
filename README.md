@@ -56,7 +56,7 @@ You write the claims once. `capture` fills in the hashes and commits from the re
 
 ## Install
 
-`handover` is not on PyPI yet (deliberately: no registry account is needed to ship it). Four channels are measured on a clean machine, all printing `handover 0.1.0`:
+Not on PyPI, and worth knowing why: the PyPI project named `handover` is an **unrelated tool by another author** (v1.2.1). `pip install handover` installs theirs, not this. Install from the release URL or the tag below - all four channels were executed on a clean machine for v0.1.0, and each printed `handover 0.1.0`:
 
 ```bash
 # 1. the release wheel (no build, no account)
