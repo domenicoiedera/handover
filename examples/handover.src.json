@@ -1,0 +1,26 @@
+{
+  "facts": [
+    {
+      "text": "the CLI entry point is handover.cli:main and reports its version",
+      "claims": [
+        { "kind": "file", "path": "handover/cli.py" },
+        { "kind": "text", "path": "pyproject.toml", "contains": "handover = \"handover.cli:main\"" }
+      ]
+    },
+    {
+      "text": "the packet body is sealed with sha256 over canonical JSON",
+      "claims": [
+        { "kind": "text", "path": "handover/packet.py", "contains": "def seal_value" }
+      ]
+    }
+  ],
+  "decisions": [
+    { "text": "unknown counts as failure", "why": "a claim nobody can evaluate is not evidence" }
+  ],
+  "open": [
+    { "text": "signature layer for author identity", "owner": "v0.2" }
+  ],
+  "owners": [
+    { "seat": "maintainer", "paths": ["handover/**", "tests/**"] }
+  ]
+}
