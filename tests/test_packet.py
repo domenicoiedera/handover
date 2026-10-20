@@ -229,7 +229,9 @@ class CaptureTests(unittest.TestCase):
     def test_capture_pins_the_file_hash(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
-            write(root, "src/app.py", "x = 1\n")
+            path = root / "src/app.py"
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_bytes(b"x = 1\n")
             packet = P.capture({"facts": [{"text": "app exists", "claims": [{"kind": "file", "path": "src/app.py"}]}]}, root)
             claim = packet["facts"][0]["claims"][0]
             self.assertEqual(claim["sha256"], hashlib.sha256(b"x = 1\n").hexdigest())
