@@ -1,5 +1,6 @@
 import io
 import json
+import os
 import subprocess
 import sys
 import tempfile
@@ -155,7 +156,28 @@ class CaptureThenCheckTests(unittest.TestCase):
     def test_capture_without_a_source_is_refused(self):
         code, _out, err = run(["capture", "--from", str(self.root / "missing.json")])
         self.assertEqual(code, 2)
-        self.assertIn("no source spec", err)
+        self.assertIn("cannot read the source spec", err)
+
+    def test_capture_on_a_directory_is_a_clean_refusal(self):
+        directory = self.root / "specs"
+        directory.mkdir()
+        code, out, err = run(["capture", "--from", str(directory)])
+        self.assertEqual(code, 2)
+        self.assertIn("cannot read the source spec", err)
+        self.assertNotIn("Traceback", out + err)
+
+    @unittest.skipIf(os.name == "nt" or (hasattr(os, "geteuid") and os.geteuid() == 0),
+                     "posix permissions, non-root only")
+    def test_capture_on_an_unreadable_source_is_a_clean_refusal(self):
+        path = spec_file(self.root, [{"text": "x"}])
+        path.chmod(0o000)
+        try:
+            code, out, err = run(["capture", "--from", str(path)])
+        finally:
+            path.chmod(0o600)
+        self.assertEqual(code, 2)
+        self.assertIn("cannot read the source spec", err)
+        self.assertNotIn("Traceback", out + err)
 
     def test_capture_with_invalid_source_json_is_refused(self):
         path = self.root / "bad-spec.json"

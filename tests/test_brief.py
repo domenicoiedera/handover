@@ -73,6 +73,18 @@ class BriefTests(unittest.TestCase):
     def test_checks_line_counts_ok(self):
         self.assertIn("## Checks: 1/1 ok", B.brief(packet(), ok_results(), stale=False))
 
+    def test_duplicate_fact_texts_do_not_cross_label(self):
+        data = packet(facts=[{"text": "same words", "claims": [{"kind": "file", "path": "a"}]},
+                             {"text": "same words", "claims": [{"kind": "file", "path": "b"}]}])
+        results = [
+            {"status": OK, "kind": "file", "target": "a", "detail": "", "fact": "same words", "index": 0},
+            {"status": STALE, "kind": "file", "target": "b", "detail": "", "fact": "same words", "index": 1},
+        ]
+        lines = [line for line in B.brief(data, results, stale=False).splitlines() if line.startswith("- same words")]
+        self.assertEqual(len(lines), 2)
+        self.assertIn("[1 check ok]", lines[0])
+        self.assertIn("CHECKS FAIL: STALE", lines[1])
+
 
 class FailureFormattingTests(unittest.TestCase):
     def test_no_failures_is_empty(self):

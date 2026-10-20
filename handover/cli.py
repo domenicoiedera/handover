@@ -52,8 +52,9 @@ def _cmd_capture(args: argparse.Namespace) -> int:
     source = Path(args.source).expanduser()
     try:
         spec = json.loads(source.read_text(encoding="utf-8"))
-    except FileNotFoundError:
-        print(f"refusing: no source spec at {source}", file=sys.stderr)
+    except OSError as exc:
+        reason = getattr(exc, "strerror", None) or exc.__class__.__name__
+        print(f"refusing: cannot read the source spec at {source}: {reason}", file=sys.stderr)
         return EXIT_REFUSED
     except json.JSONDecodeError as exc:
         print(f"refusing: source spec is not valid JSON: {exc}", file=sys.stderr)
@@ -136,6 +137,10 @@ def main(argv: list[str] | None = None) -> int:
         return handlers[args.command](args)
     except PacketError as exc:
         print(f"refusing: {exc}", file=sys.stderr)
+        return EXIT_REFUSED
+    except OSError as exc:
+        reason = getattr(exc, "strerror", None) or exc.__class__.__name__
+        print(f"refusing: {reason}", file=sys.stderr)
         return EXIT_REFUSED
     except BrokenPipeError:
         return EXIT_OK

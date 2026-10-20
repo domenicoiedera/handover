@@ -9,7 +9,7 @@ import unittest
 from pathlib import Path
 
 REQUIRED_MODULES = ("claims", "cli", "brief", "packet")
-MINIMUM_TESTS = 125
+MINIMUM_TESTS = 128
 PACKAGE = Path(__file__).resolve().parents[1] / "handover"
 TESTS = Path(__file__).resolve().parent
 

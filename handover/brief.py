@@ -28,12 +28,15 @@ def brief(packet: dict, results: list[dict], stale: bool) -> str:
     lines.append("")
 
     facts = packet.get("facts", [])
+    by_index: dict[int, list[str]] = {}
+    for result in results:
+        by_index.setdefault(result.get("index"), []).append(result["status"])
     lines.append(f"## Facts ({len(facts)})")
-    for fact in facts:
+    for position, fact in enumerate(facts):
         claims = fact.get("claims", [])
         if claims:
             label = "check ok" if len(claims) == 1 else "checks ok"
-            statuses = [r["status"] for r in results if r.get("fact") == fact.get("text")]
+            statuses = by_index.get(position, [])
             label_text = label if statuses and all(s == OK for s in statuses) else \
                     f"CHECKS FAIL: {', '.join(sorted({s for s in statuses if s != OK}))}"
             lines.append(f"- {fact['text']}  [{len(claims)} {label_text}]")
