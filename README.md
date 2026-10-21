@@ -94,7 +94,7 @@ Exit codes: `0` verified, `1` stale or tampered, `2` refused (malformed, or a cl
 
 ## Proven, not promised
 
-- **128 tests** (`python -m unittest discover -s tests -t .`), no mocks around the filesystem: every check runs against real files and a real git repo.
+- **129 tests** (`python -m unittest discover -s tests -t .`), no mocks around the filesystem: every check runs against real files and a real git repo.
 - **8 mutation guards** (`tools/mutation_check.py`): each one breaks a single promised rule and the suite must go red. All 8 are killed - a rule that survives its own mutant is documentation, not enforcement.
 - **7 adversarial probes** before publication, all refused: edited bytes, a tampered packet body, `..` escape, symlink escape, a packet with no claims, an unreadable file, and a claim that was already false at capture.
 - **Zero runtime dependencies**, confirmed by the wheel's empty `Requires:`.
