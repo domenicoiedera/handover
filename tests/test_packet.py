@@ -9,6 +9,7 @@ try:
 except ImportError:  # pragma: no cover - discovery without the package
     from support import commit_all, make_repo, write
 
+from handover import claims as C
 from handover import packet as P
 
 
@@ -307,6 +308,17 @@ class CaptureTests(unittest.TestCase):
             self.assertEqual(packet["decisions"][0]["why"], "Friday")
             self.assertEqual(packet["open"][0]["owner"], "cto")
             self.assertEqual(packet["owners"][0]["paths"], ["src/**"])
+
+    def test_unchecked_fact_next_to_a_real_claim_is_not_verified(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            write(root, "a.txt", "hello\n")
+            packet = P.capture({"facts": [{"text": "a exists", "claims": [{"kind": "file", "path": "a.txt"}]},
+                                          {"text": "prose only"}]}, root)
+            results = C.evaluate_packet(root, packet)
+            self.assertEqual(len(results), 2)
+            self.assertEqual(results[1]["status"], C.UNKNOWN)
+            self.assertFalse(C.summarise(results)["verified"])
 
 
 if __name__ == "__main__":

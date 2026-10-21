@@ -135,8 +135,20 @@ def evaluate(root: Path, claim: dict) -> dict:
 
 def evaluate_packet(root: Path, packet: dict) -> list[dict]:
     results = []
-    for fact_index, fact in enumerate(packet.get("facts", [])):
-        for claim in fact.get("claims", []):
+    facts = packet.get("facts", [])
+    any_claim = any(fact.get("claims") for fact in facts)
+    for fact_index, fact in enumerate(facts):
+        claims = fact.get("claims", [])
+        if not claims:
+            # In a packet that has real claims, an unclaimed fact is an unchecked
+            # assertion and must count as a failure, never as silently verified.
+            # A packet with no claims at all stays UNCHECKED (see summarise).
+            if any_claim:
+                results.append({"status": UNKNOWN, "kind": "none", "target": "",
+                                "detail": "fact has no checkable claim",
+                                "fact": fact.get("text", ""), "index": fact_index})
+            continue
+        for claim in claims:
             verdict = evaluate(root, claim)
             verdict["fact"] = fact.get("text", "")
             verdict["index"] = fact_index
